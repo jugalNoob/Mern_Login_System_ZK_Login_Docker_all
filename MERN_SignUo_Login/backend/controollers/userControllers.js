@@ -1,0 +1,199 @@
+const Register = require("../models/student");
+var bcrypt = require('bcryptjs');
+const fs =require('fs')
+const shortid = require('shortid'); // Import shortid library
+
+
+exports.first=async (req,res)=>{
+
+
+ 
+
+    console.log(`Request received on worker ${process.pid}`);
+    res.json({ message: `Hello, this is the response from the server. Worker ${process.pid}` });
+
+}
+
+
+exports.forms = async (req, res) => {
+    const { name, email, password } = req.body;
+
+    // Check if all fields are provided
+    if (!name || !email || !password) {
+        return res.status(422).json({ error: "Please fill all the required fields" });
+    }
+
+    try {
+        // Check if the user already exists
+        const userExist = await Register.findOne({ email: email });
+        if (userExist) {
+            return res.status(422).json({ error: 'User email already exists' });
+        }
+
+        // Generate a unique shortId
+        const shortId = shortid.generate();
+
+        console.log(shortId)
+
+        // Create a new user instance
+        const addData = new Register({
+            name,
+            email,
+            password,
+            shortId // Ensure this field is included in your schema
+        });
+
+        // Save the new user to the database
+        const upload = await addData.save();
+        console.log(upload);
+
+        // Optionally, append the user data to a file
+        // Uncomment this block if you want to use it
+        // fs.appendFile("hash.txt", JSON.stringify({...upload}) + "\n", (err) => {
+        //     if (err) {
+        //         console.error(err);
+        //         return;
+        //     }
+        //     console.log("Data appended successfully to hash.txt");
+        // });
+
+        res.status(201).json({ message: "Data successfully uploaded" });
+    } catch (err) {
+        if (err.code === 11000) {
+            res.status(422).json({ error: 'Duplicate key error: A record with this shortId already exists.' });
+        } else {
+            console.error(err);
+            res.status(500).json({ error: "An error occurred" });
+        }
+    }
+};
+
+/// Login with  ?????????????????????????????????????????????????????????????
+
+exports.login = async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(422).json({ error: "Please provide email and password" });
+    }
+
+    try {
+        const userValid = await Register.findOne({ email });
+        if (!userValid) {
+            return res.status(422).json({ error: "Invalid email or password" });
+        }
+
+        const isMatch = await bcrypt.compare(password, userValid.password);
+        if (!isMatch) {
+            return res.status(422).json({ error: "Invalid email or password" });
+        }
+
+        const token = await userValid.generateAuthtoken();
+        console.log("Generated token:", token);
+
+        res.cookie("jwttoken", token, { 
+            expires: new Date(Date.now() + 9000000),
+            httpOnly: true, // Set HTTP only to prevent JavaScript access
+            // Other cookie options if needed
+        });
+
+        console.log("Cookie set successfully");
+
+        const result = {
+            user: userValid,
+            token
+        };
+
+        return res.status(200).json({ message: "Login successful", result });
+    } catch (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+
+
+// Email password Update request 
+exports.update = async (req, res) => {
+    try {
+      const email = req.body.email; 
+      console.log(email , "first email");
+  
+      let password = req.body.password;
+      console.log(password , "password");
+  
+      let hashpassword = await bcrypt.hash(password, 12);
+      console.log(hashpassword, "hashed password");
+  
+      const updatedUser = await Register.findOneAndUpdate(
+        { email: email }, 
+        { password: hashpassword }, 
+        { new: true }
+      );
+  
+      
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" }); /// 
+      }
+  
+      console.log("User updated:", updatedUser);
+      res.status(200).send(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+
+
+
+
+//authentication
+
+//check user login
+
+
+
+exports.auth = async (req, res, next) => {
+    try {
+      const userData = req.user;
+      console.log(userData, "userData DashBord"); // Check if userData is defined
+  
+      if (!userData) {
+        return res.status(401).json({ error: "User data not available" });
+      }
+  
+      return res.status(200).json({ userData });
+    } catch (error) {
+      console.log(`Error from user route: ${error}`);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  };
+
+
+// exports.login = async,authenticate  (req, res) => {
+
+//     console.log("hello")
+//     res.send(req.rootUser)
+// });
+
+// router.get("/Cont",authenticate,(req,res)=>{
+
+
+///Out Line Row class
+exports.logout = async (req, res) => {
+
+// router.get("/logout", (req, res) => {
+    try {
+        console.log("hello hellow eolred");
+        res.clearCookie("usercookie");
+        res.status(200).send("UserLogout");
+        // Update the user's session to indicate that they are logged out
+        req.session.user = null;
+
+        // Redirect the user to a different page after logout
+        res.redirect("/login");
+    } catch (error) {
+        console.error("Error occurred during logout:", error);
+        res.status(500).send("Error occurred during logout");
+    }
+}

@@ -1,0 +1,127 @@
+.back-form{
+    background-color: #c2dcff;
+    width: 100%;
+   height: 100vh; 
+   position: fixed;
+   top: 0;
+   z-index: -1;
+}
+
+.form{
+    margin: auto;
+    margin-top: 100px;
+    width: 500px;
+    height: 600px;
+    border-radius: 19px;
+background: #c2dcff;
+box-shadow: inset 5px 5px 8px #adc4e3,
+            inset -5px -5px 8px #d7f4ff;
+}
+
+.form input[type="text"]{
+    outline: none;
+    border: none;
+    margin-top: 100px;
+    padding: 7px;
+    border-radius: 7px;
+    background-color: rgb(183, 183, 179);
+    color: white;
+}
+
+.form input[type="text"]::placeholder{
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}
+
+.form input[type="email"]{
+    outline: none;
+    border: none;
+    margin-top: 30px;
+    padding: 7px;
+    border-radius: 7px;
+    background-color: rgb(183, 183, 179);
+    color: white;
+}
+.form input[type="email"]::placeholder{
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}
+
+
+.form input[type="number"]{
+    outline: none;
+    border: none;
+    margin-top: 30px;
+    padding: 7px;
+    border-radius: 7px;
+    background-color: rgb(183, 183, 179);
+    color: white;
+}
+
+.form input[type="number"]::placeholder{
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}
+.form input[type="radio"]{
+    outline: none;
+    border: none;
+    margin-top: 30px;
+}
+
+.form input[type="password"]{
+    outline: none;
+    border: none;
+    margin-top: 30px;
+    padding: 7px;
+    border-radius: 7px;
+    background-color: rgb(183, 183, 179);
+    color: white;
+    
+}
+
+.n {
+    color: white;
+    text-transform: capitalize;
+    background-color: black;
+    color: white;
+    margin-left: 30px;
+    padding: 4px;
+    border-radius: 10px;
+  }
+.form input[type="password"]::placeholder{
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}
+
+.form  button{
+    outline: none;
+    border: none;
+    background-color: black;
+    width: 150px;
+    padding: 7px;
+    border-radius: 7px;
+    color: white;
+    font-weight: bold;
+}
+
+
+.form  span{
+    color: rgb(255, 0, 0);
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.randomes{
+text-align: center;
+
+}
+
+.randomes h1{
+    font-size: 1rem;
+    color: white;
+    margin-top: 20px;
+}

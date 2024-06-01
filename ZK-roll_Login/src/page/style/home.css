@@ -1,0 +1,18 @@
+.back-home{
+    background-color: #4f7dba;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    z-index: -1;
+
+}
+
+.head-onee{
+  
+}
+
+.head-onee span{
+    margin-top: 100px;
+    margin-left: 100px;
+}
