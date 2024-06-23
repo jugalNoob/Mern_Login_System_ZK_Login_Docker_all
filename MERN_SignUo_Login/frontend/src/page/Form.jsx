@@ -85,8 +85,8 @@ function Form() {
 
             // navigate("/")
             console.log(user);
-            localStorage.setItem("usersdatatoken",res.result.token);
-            localStorage.setItem("usersdatatokens",res.result.name);
+            // localStorage.setItem("usersdatatoken",res.result.token);
+            // localStorage.setItem("usersdatatokens",res.result.name);
           }
         }
       }
