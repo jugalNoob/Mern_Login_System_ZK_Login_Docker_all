@@ -4,18 +4,31 @@ const fs =require('fs')
 const shortid = require('shortid'); // Import shortid library
 
 
-exports.first=async (req,res)=>{
+exports.first = async (req, res) => {
 
+    // const id = req.params.id;
+    // console.log(id)
+    // console.log(res.cork(), "jugal");
 
- 
+    // res.write('Mozilla');
+    // res.write(' Developer Network');
+    // res.uncork();
+
+    res.param = 'Hello, World!';
+    console.log(res.param);  // Outputs: Hello, World!
+
+    // Uncomment these lines if you need to log additional request details:
+    // console.log(req.user, "user");
+    // console.log(req.session, "session");
+    // console.log(req.body, "body");
+    // console.log(req.user ? req.user.role : "No user role", "userRole");
+    // console.log(req.ip, "dsdffsfrIpAddress");
 
     console.log(`Request received on worker ${process.pid}`);
+
     res.json({ message: `Hello, this is the response from the server. Worker ${process.pid}` });
+};
 
-
-    
-
-}
 
 
 exports.forms = async (req, res) => {

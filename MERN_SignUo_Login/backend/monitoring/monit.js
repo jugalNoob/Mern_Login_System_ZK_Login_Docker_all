@@ -1,6 +1,7 @@
 const client = require("prom-client"); // Metrics collection
 const responseTime = require('response-time');
-const { createLogger, transports } = require("winston");
+const { createLogger, format, transports } = require('winston');
+const {  timestamp, label, prettyPrint , printf , combine } = format;
 const LokiTransport = require("winston-loki");
 
 const express = require('express');
@@ -10,7 +11,50 @@ var StatsD = require('node-statsd')
 var stats = new StatsD()
 
 
+
+
+/// triple-beam ---------------
+
+const { LEVEL, MESSAGE, SPLAT } = require('triple-beam');
+
+console.log(LEVEL , MESSAGE , SPLAT)
+
+console.log(LEVEL === Symbol.for('level'));
+
+console.log(MESSAGE === Symbol.for('message'));
+// true
+
+console.log(SPLAT === Symbol.for('splat'));
+// true
+
+
+
+
+//Define logger Log Levels
+// Define your log levels
+const logLevels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  verbose: 4,
+  debug: 5,
+  silly: 6
+};
+
+
+
+
 const options = {
+  format: combine(
+    label({ label: 'right meow!' }),
+    timestamp(),
+    prettyPrint(),
+    printf(({ level, message, timestamp }) => {
+      return `${timestamp} [${level}]: ${message}`;
+    })
+  ),  levels: logLevels,
+  transports: [new transports.Console()],
   transports: [
     new LokiTransport({
       host: "http://127.0.0.1:3100"
@@ -19,15 +63,23 @@ const options = {
 };
 
 
+
 const logger = createLogger(options);
+
+// console.log(logger.levels, logger.format)
+// console.log(logger.levels, logger.format)
+
 
 // Collect default metrics
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics({ register: client.register });
 
 
+
+
 // Histogram for request-response time
-const reqResTime = new client.Histogram({  
+//const client = require("prom-client"); 
+const histogram = new client.Histogram({  
   name: "http_express_req_res_time_Historgram",
   help: "This tells how much is taken by req and res",
   labelNames: ['method', 'route', 'status_code'],
@@ -48,7 +100,7 @@ const totaReq = new client.Counter({
 const activeConnections = new client.Gauge({
   name: "active_connections",
   help: "Number of active connections",
-  labelNames: ['service'],
+  labelNames: ['service','method', 'statusCode'],
 });
 
 
@@ -60,32 +112,6 @@ const requestDurationSummary = new client.Summary({  //
   percentiles: [0.5, 0.9, 0.99],
 });
 
-
-router.use((req,res , next)=>{
-
-console.log( req.headers)
-console.log(res.getHeaders())
-
-  next()
-})
-
-
-// router.use((req, res, next) => {
-//   let requestBodySize = 0;
-
-//   req.on('data', (chunk) => {
-//     requestBodySize += chunk.length;
-//   });
-
-//   req.on('end', () => {
-//     console.log("Request Body Size (bytes):", requestBodySize);
-//   });
-
-//   next();
-// });
-  // console.log("Request Headers:", req.headers);
-  // console.log("Response Headers:", res.getHeaders());  
-// Middleware for response time
 
 
   router.use(responseTime((req, res, time) => {   //this is middle ware 
@@ -102,12 +128,15 @@ console.log(res.getHeaders())
 
     // Increment the activeConnections gauge for the service when a new connection is established
     activeConnections.labels({ service: 'your_service_name' }).inc();
-  
+
+
+
+
     // Increment the total request counter
     totaReq.inc();
   
     activeConnections.labels({ service: 'your_service_name' }).inc();
-
+    activeConnections.labels('GET' , "POST" , '200').set(100);
     // Log the total number of requests how many user a  website
     console.log("Total Requests:", totaReq.hashMap[''].value);
   
@@ -116,33 +145,21 @@ console.log(res.getHeaders())
     console.log("Current Date and Time:", datatimes);
 
 
-      // Log additional request and response information
-  console.log("Request Headers:", req.headers);
-  console.log("Response Headers:", res.getHeaders());
+    
 
-
-
-  // Calculate and log the size of the response body
-  // let responseSize = 0;
-  // res.on('data', (chunk) => {
-  //   responseSize += chunk.length;
-  // });
-  // // console.log(responseSize)
-  // res.on('end', () => {
-  //   console.log("Response Size (bytes):", responseSize);
-  // });
-  // console.log("Request Headers:", req.headers);
-  // console.log("Response Headers:", res.getHeaders());
 
 
   //check histogram graph
     // Observe the request-response time using the provided parameters
-    reqResTime.labels({
+    histogram.labels({
       method: req.method || "GET" || "POST" || "PATCH" || "Delete",
       route: req.url,
       status_code: res.statusCode
     }).observe(time);
   
+    histogram.zero({ method: 'GET' });
+    histogram.zero({ method: 'POST' });
+    
 
       // Decrement the activeConnections gauge when the response is finished
   // res.on('finish', () => {
@@ -164,6 +181,14 @@ console.log(res.getHeaders())
       // The response time is captured by the 'response-time' middleware
       // totaReq.inc();
       logger.info('req came on /slow router');
+
+      // Messages with { private: true } will not be written when logged.
+      logger.log({
+        private: true,
+        level: 'error',
+        message: 'This is super secret - hide it.'
+      });
+
       res.json({
         name: "jugal",
         class: "40"
@@ -190,3 +215,12 @@ router.get("/metrics" ,async (req,res)=>{
 
 
 module.exports = router; // Export the router for use in app.js
+
+
+// router.use((req,res , next)=>{
+
+//   // console.log( req.headers)
+//   // console.log(res.getHeaders())
+  
+//     next()
+//   })

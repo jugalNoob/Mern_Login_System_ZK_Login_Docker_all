@@ -9,7 +9,7 @@ const metricsRouter = require('../monitoring/monit');
 
 router.use(metricsRouter)
 
-router.get("/",controllers.first )
+router.get("/home/jugal", controllers.first);
 router.post("/signin",controllers.forms )
 router.post("/signup",controllers.login )
 router.patch("/update",controllers.update )
