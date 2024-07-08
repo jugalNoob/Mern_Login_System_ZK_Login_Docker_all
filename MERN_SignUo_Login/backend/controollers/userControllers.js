@@ -213,3 +213,25 @@ exports.logout = async (req, res) => {
         res.status(500).send("Error occurred during logout");
     }
 }
+
+
+::: ------------------>>
+
+    // Example routes
+app.get('/', (req, res, next) => {
+    // Simulate a bad request error
+    next(new BadRequestError('Invalid request body'));
+});
+
+app.get('/user/:id', (req, res, next) => {
+    const userId = req.params.id;
+
+    // Simulate a not found error
+    if (userId !== '123') {
+        return next(new NotFoundError('User not found'));
+    }
+
+    // Simulate success
+    res.json({ userId, username: 'john_doe' });
+});
+
