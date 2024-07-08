@@ -18,6 +18,24 @@ app.use(status());
 
 
 
+// ----------- >> Multi Hnadle error
+// Error handling middleware
+app.use((err, req, res, next) => {
+    if (err instanceof BadRequestError) {
+        return res.status(400).json({ error: err.message });
+    }
+
+    if (err instanceof NotFoundError) {
+        return res.status(404).json({ error: err.message });
+    }
+
+    // Handle other types of errors
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+
+
 
 // CORS Configuration --------------------<><><><><>
 const corsOption = {
