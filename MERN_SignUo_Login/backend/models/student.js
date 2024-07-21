@@ -28,6 +28,66 @@ const Students=new mongoose.Schema({
 
 })
 
+
+//new models  -------------------------------->>>
+const studentSchema = new mongoose.Schema({
+    name: { type: String },
+    email: { type: String },
+    password: { type: String },
+    date: { type: Date, default: Date.now }, // Default date time
+    shortId: { type: String, unique: true }, // Ensure shortId is unique
+    tokens:[
+        {
+            token:{
+                type:String
+            },
+        }
+    ],
+    address: [
+        {
+            add: { type: String }
+        }
+    ],
+
+ 
+});
+
+
+
+
+studentSchema.methods.generateAuthToken = async function (href, ip, hostname, pathname, protocol, connection, host, secChUaPlatform, acceptLanguage, secChUa) {
+    const token = {
+        href,
+        'IP Address': ip,
+        Host: hostname,
+        Pathname: pathname,
+        Protocol: protocol,
+        Connection: connection,
+        'Host Header': host,
+        'Sec-CH-UA-Platform': secChUaPlatform,
+        'Accept-Language': acceptLanguage,
+        'Sec-CH-UA': secChUa
+    }; // Example token, this should be generated securely
+    this.address.push({ add: JSON.stringify(token) });
+    await this.save();
+    return token;
+};
+
+
+
+//Simple token generation ----->><>>
+// studentSchema.methods.generateAuthToken = async function () {
+//     let token = "453564456456"; // Example token, this should be generated securely
+//     this.address.push({ add: token });
+//     await this.save();
+//     return token;
+// };
+
+
+///JSON web Token authentication
+
+
+
 //////////////////////////LINK - 
 //we are generated token /// store in DataBase
 //authentication 
