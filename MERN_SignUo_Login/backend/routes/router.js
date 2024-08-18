@@ -15,6 +15,16 @@ router.post("/signup",controllers.login )
 router.patch("/update",controllers.update )
 
 
+// API v1 route
+router.get("/v1/user/:id", async (req, res) => {
+    const userId = req.params.id;
+    // Your logic to fetch the user by ID in version 1 of the API
+    res.send(`User ID: ${userId} (API v1)`);
+});
+
+
+
+
 router.get('/Count', authenticate, controllers.auth);
 
 
