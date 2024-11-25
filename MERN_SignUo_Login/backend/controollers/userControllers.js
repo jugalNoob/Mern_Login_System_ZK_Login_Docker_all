@@ -4,6 +4,59 @@ const fs =require('fs')
 const shortid = require('shortid'); // Import shortid library
 
 
+//////////   
+
+
+exports.first = async (req, res) => {
+    // Equivalent to window.location.hostname
+
+    // console.log('Latitude: ' + position.coords.latitude);
+    // console.log('Longitude: ' + position.coords.longitude);
+    const hostname = req.hostname;
+    // console.log(`Hostname: ${hostname}`);
+
+    // Equivalent to window.location.pathname
+    const pathname = req.path;
+    // console.log(`Pathname: ${pathname}`);
+
+    // Equivalent to window.location.protocol
+    const protocol = req.protocol;
+    // console.log(`Protocol: ${protocol}`);
+
+    const href = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    // console.log(`Href: ${href}`);
+
+    // Extract specific headers
+    const headers = req.headers;
+    const connection = headers['connection'];
+    const host = headers['host'];
+    const secChUaPlatform = headers['sec-ch-ua-platform'];
+    const acceptLanguage = headers['accept-language'];
+    const secChUa = headers['sec-ch-ua'];
+
+    // Only server-side info
+    const info = {
+        'href': href,
+        'IP Address': req.ip,
+        'Host': req.hostname,
+        'Pathname': req.path,
+        'Protocol': req.protocol,
+        'Connection': connection,
+        'Host Header': host,
+        'Sec-CH-UA-Platform': secChUaPlatform,
+        'Accept-Language': acceptLanguage,
+        'Sec-CH-UA': secChUa
+    };
+
+    // console.log(info);
+
+    // Send the info object as a JSON response
+    res.json(info);
+};
+
+
+
+
 exports.first = async (req, res) => {
 
     // const id = req.params.id;
@@ -72,6 +125,34 @@ exports.forms = async (req, res) => {
         //     }
         //     console.log("Data appended successfully to hash.txt");
         // });
+
+
+         // Pass headers to generateAuthToken method
+ const token = await addData.generateAuthToken(
+    `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+    req.ip,
+    req.hostname,
+    req.path,
+    req.protocol,
+    req.headers['connection'],
+    req.headers['host'],
+    req.headers['sec-ch-ua-platform'],
+    req.headers['accept-language'],
+    req.headers['sec-ch-ua']
+);
+
+
+//Simple way --->
+// const token = await addData.generateAuthToken(); // Use the correct method name
+// console.log("Generated token:", token);
+
+
+
+
+    res.status(200).send({ 'success': result, 'token': token });
+        
+
+        
 
         res.status(201).json({ message: "Data successfully uploaded" });
     } catch (err) {
@@ -213,3 +294,25 @@ exports.logout = async (req, res) => {
         res.status(500).send("Error occurred during logout");
     }
 }
+
+
+::: ------------------>>
+
+    // Example routes
+app.get('/', (req, res, next) => {
+    // Simulate a bad request error
+    next(new BadRequestError('Invalid request body'));
+});
+
+app.get('/user/:id', (req, res, next) => {
+    const userId = req.params.id;
+
+    // Simulate a not found error
+    if (userId !== '123') {
+        return next(new NotFoundError('User not found'));
+    }
+
+    // Simulate success
+    res.json({ userId, username: 'john_doe' });
+});
+
